@@ -43,9 +43,9 @@ USER bunuser
 # Expose port
 EXPOSE 3001
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
-  CMD bun -e "fetch('http://localhost:3001/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"
+# Health check - ALB가 /api/health를 확인하므로 Docker는 비활성화
+# ALB Health Check만 사용
+# HEALTHCHECK NONE
 
 # Start the application
 CMD ["bun", "run", "start"]
