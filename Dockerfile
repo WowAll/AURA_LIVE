@@ -21,6 +21,9 @@ FROM oven/bun:1-alpine
 
 WORKDIR /app
 
+# Install curl for ECS health check
+RUN apk add --no-cache curl
+
 # Copy package files
 COPY package.json bun.lock* ./
 
