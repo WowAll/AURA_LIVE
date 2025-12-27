@@ -24,8 +24,8 @@ WORKDIR /app
 # Copy package files
 COPY package.json bun.lock* ./
 
-# Install only production dependencies
-RUN bun install --production --frozen-lockfile
+# Install all dependencies (Swagger needs devDependencies)
+RUN bun install --frozen-lockfile
 
 # Copy built application from builder
 COPY --from=builder /app/dist ./dist
