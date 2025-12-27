@@ -1,0 +1,69 @@
+services:
+  # LiveKit 서버
+  livekit:
+    image: livekit/livekit-server:latest
+    command: --config /etc/livekit.yaml
+    restart: unless-stopped
+    ports:
+      - "7880:7880" # HTTP API
+      - "7881:7881" # RTMP
+      - "7882:7882/udp" # WebRTC UDP
+      - "60000-60100:60000-60100/udp" # WebRTC UDP 포트 범위
+    volumes:
+      - ./livekit.yaml:/etc/livekit.yaml
+    environment:
+      LIVEKIT_KEYS: "devkey: dev1234567890abcdefghijklmnopqrstuvwxyz1234567890" # 개발용 (프로덕션에서는 변경 필요)
+    networks:
+      - webrtc-network
+
+  # Backend (NestJS)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      - LIVEKIT_API_KEY=devkey
+      - LIVEKIT_API_SECRET=dev1234567890abcdefghijklmnopqrstuvwxyz1234567890
+      - LIVEKIT_URL=ws://livekit:7880
+      - PORT=3001
+    depends_on:
+      - livekit
+    networks:
+      - webrtc-network
+
+  # PostgreSQL (나중에 사용)
+  # postgres:
+  #   image: postgres:16-alpine
+  #   restart: unless-stopped
+  #   environment:
+  #     POSTGRES_DB: webrtc_db
+  #     POSTGRES_USER: admin
+  #     POSTGRES_PASSWORD: password
+  #   ports:
+  #     - "5432:5432"
+  #   volumes:
+  #     - postgres-data:/var/lib/postgresql/data
+  #   networks:
+  #     - webrtc-network
+
+  # Redis (나중에 사용)
+  # redis:
+  #   image: redis:7-alpine
+  #   restart: unless-stopped
+  #   ports:
+  #     - "6379:6379"
+  #   volumes:
+  #     - redis-data:/data
+  #   networks:
+  #     - webrtc-network
+
+networks:
+  webrtc-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
+  redis-data:

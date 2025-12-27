@@ -1,0 +1,30 @@
+port: 7880
+rtc:
+  # WebRTC 포트 범위
+  port_range_start: 60000
+  port_range_end: 60100
+
+  # UDP 사용
+  use_external_ip: true
+
+  # STUN 서버 (Google 무료)
+  stun_servers:
+    - stun.l.google.com:19302
+    - stun1.l.google.com:19302
+
+# API 키 설정 (개발용 - 프로덕션에서는 반드시 변경)
+keys:
+  devkey: dev1234567890abcdefghijklmnopqrstuvwxyz1234567890
+
+# 로깅 레벨
+logging:
+  level: info
+
+# 방 설정
+room:
+  # 빈 방 자동 종료 (5분)
+  auto_create: true
+  empty_timeout: 300
+
+  # 최대 참여자 수
+  max_participants: 20
