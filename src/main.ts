@@ -6,8 +6,12 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   // CORS 설정 (Frontend와 통신)
+  const allowedOrigins = process.env.FRONTEND_URL
+    ? [process.env.FRONTEND_URL, "http://localhost:3000"]
+    : ["http://localhost:3000"];
+
   app.enableCors({
-    origin: "http://localhost:3000",
+    origin: allowedOrigins,
     credentials: true,
   });
 
