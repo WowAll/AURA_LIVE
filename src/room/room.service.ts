@@ -22,10 +22,10 @@ export class RoomService {
   /**
    * LiveKit 서버에 방 생성
    */
-  async createRoomOnLiveKit(roomName: string, maxParticipants: number = 10) {
+  async createRoomOnLiveKit(roomId: string, maxParticipants: number = 10) {
     try {
       const room = await this.roomClient.createRoom({
-        name: roomName,
+        name: roomId,
         emptyTimeout: 300, // 5분 동안 비어있으면 자동 삭제
         maxParticipants,
       });
@@ -70,12 +70,12 @@ export class RoomService {
   /**
    * LiveKit Token 생성
    */
-  async createToken(roomName: string, userName: string): Promise<string> {
+  async createToken(roomId: string, userName: string): Promise<string> {
     const apiKey = process.env.LIVEKIT_API_KEY;
     const apiSecret = process.env.LIVEKIT_API_SECRET;
 
     console.log("Creating token:", {
-      roomName,
+      roomId,
       userName,
       apiKey,
       hasSecret: !!apiSecret,
@@ -97,7 +97,7 @@ export class RoomService {
       // 방 접근 권한 부여
       token.addGrant({
         roomJoin: true,
-        room: roomName,
+        room: roomId,
         canPublish: true,
         canSubscribe: true,
         canPublishData: true,

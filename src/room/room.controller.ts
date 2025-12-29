@@ -42,7 +42,7 @@ export class RoomController {
   })
   @ApiResponse({
     status: 400,
-    description: "잘못된 요청 (roomName 또는 userName 누락)",
+    description: "잘못된 요청 (roomId 또는 userName 누락)",
   })
   @ApiResponse({
     status: 500,
@@ -50,7 +50,7 @@ export class RoomController {
   })
   async getToken(@Body() dto: GetTokenDto): Promise<TokenResponse> {
     const token = await this.roomService.createToken(
-      dto.roomName,
+      dto.roomId,
       dto.userName
     );
 

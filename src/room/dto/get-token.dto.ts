@@ -7,8 +7,8 @@ export class GetTokenDto {
     example: 'room-d0340570-f900-469c-a4a5-63eeacba83dc',
   })
   @IsString()
-  @IsNotEmpty({ message: 'roomName은 필수입니다' })
-  roomName: string;
+  @IsNotEmpty({ message: 'roomId은 필수입니다' })
+  roomId: string;
 
   @ApiProperty({
     description: '사용자 이름',
