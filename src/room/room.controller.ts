@@ -22,7 +22,7 @@ import { CreateRoomResponse } from "./dto/create-room-response.dto";
 
 @Controller("api")
 export class RoomController {
-  constructor(private readonly roomService: RoomService) {}
+  constructor(private readonly roomService: RoomService) { }
 
   /**
    * LiveKit 접근 토큰 발급
@@ -170,8 +170,8 @@ export class RoomController {
     status: 404,
     description: "방을 찾을 수 없음",
   })
-  getRoomInfo(@Param("roomId") roomId: string): RoomMetadata {
-    const metadata = this.roomService.getRoomMetadata(roomId);
+  async getRoomInfo(@Param("roomId") roomId: string): Promise<RoomMetadata> {
+    const metadata = await this.roomService.getRoomMetadata(roomId);
 
     if (!metadata) {
       throw new NotFoundException(`Room '${roomId}' not found`);
@@ -209,10 +209,11 @@ export class RoomController {
       },
     },
   })
-  getAllRooms() {
+  async getAllRooms() {
+    const rooms = await this.roomService.getAllRooms();
     return {
-      rooms: this.roomService.getAllRooms(),
-      total: this.roomService.getAllRooms().length,
+      rooms,
+      total: rooms.length,
     };
   }
 }

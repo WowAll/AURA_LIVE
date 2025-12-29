@@ -1,13 +1,15 @@
-import { Injectable, InternalServerErrorException } from "@nestjs/common";
+import { Injectable, InternalServerErrorException, Inject } from "@nestjs/common";
 import { AccessToken, RoomServiceClient } from "livekit-server-sdk";
 import { RoomMetadata } from "./dto/create-room.dto";
+import { RedisService } from "../redis/redis.service";
 
 @Injectable()
 export class RoomService {
   private roomClient: RoomServiceClient;
-  private roomMetadata: Map<string, RoomMetadata> = new Map();
 
-  constructor() {
+  constructor(
+    @Inject(RedisService) private readonly redisService: RedisService
+  ) {
     const livekitUrl = process.env.LIVEKIT_URL || "ws://localhost:7880";
     const apiKey = process.env.LIVEKIT_API_KEY;
     const apiSecret = process.env.LIVEKIT_API_SECRET;
@@ -46,26 +48,28 @@ export class RoomService {
   }
 
   /**
-   * 방 메타데이터 저장
+   * 방 메타데이터 저장 (Redis)
    */
-  saveRoomMetadata(metadata: RoomMetadata) {
-    this.roomMetadata.set(metadata.roomId, metadata);
-    console.log(`Room metadata saved: ${metadata.roomId}`);
+  async saveRoomMetadata(metadata: RoomMetadata): Promise<void> {
+    await this.redisService.saveRoom(metadata.roomId, metadata);
   }
 
   /**
-   * 방 메타데이터 조회
+   * 방 메타데이터 조회 (Redis)
    */
-  getRoomMetadata(roomId: string): RoomMetadata | undefined {
-    return this.roomMetadata.get(roomId);
+  async getRoomMetadata(roomId: string): Promise<RoomMetadata | null> {
+    const data = await this.redisService.getRoom(roomId);
+    return data as RoomMetadata | null;
   }
 
   /**
-   * 모든 방 목록 조회
+   * 모든 방 목록 조회 (Redis)
    */
-  getAllRooms(): RoomMetadata[] {
-    return Array.from(this.roomMetadata.values());
+  async getAllRooms(): Promise<RoomMetadata[]> {
+    const rooms = await this.redisService.getAllRooms();
+    return rooms as RoomMetadata[];
   }
+
 
   /**
    * LiveKit Token 생성

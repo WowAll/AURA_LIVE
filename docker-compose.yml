@@ -29,6 +29,7 @@ services:
       - LIVEKIT_API_KEY=devkey
       - LIVEKIT_API_SECRET=dev1234567890abcdefghijklmnopqrstuvwxyz1234567890
       - LIVEKIT_URL=ws://livekit:7880
+      - REDIS_URL=redis://redis:6379
       - PORT=3001
     depends_on:
       livekit:
@@ -36,7 +37,7 @@ services:
     networks:
       - webrtc-network
     healthcheck:
-      test: ["CMD", "bun", "-e", "fetch('http://localhost:3001/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
+      test: [ "CMD", "bun", "-e", "fetch('http://localhost:3001/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))" ]
       interval: 30s
       timeout: 3s
       retries: 3
@@ -57,16 +58,35 @@ services:
   #   networks:
   #     - webrtc-network
 
-  # Redis (나중에 사용)
-  # redis:
-  #   image: redis:7-alpine
-  #   restart: unless-stopped
-  #   ports:
-  #     - "6379:6379"
-  #   volumes:
-  #     - redis-data:/data
-  #   networks:
-  #     - webrtc-network
+  # Redis
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: redis-server --notify-keyspace-events Ex
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - webrtc-network
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  # Redis GUI
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+    depends_on:
+      - redis
+    networks:
+      - webrtc-network
 
 networks:
   webrtc-network:
